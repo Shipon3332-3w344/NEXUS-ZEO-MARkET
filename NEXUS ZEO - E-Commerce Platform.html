@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS ZEO - E-Commerce Platform</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js for Interactive 3D Product Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        miraj.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nexusRed: '#ff2a5f',
+                        nexusCyan: '#00f2fe',
+                        nexusPurple: '#7928ca',
+                        nexusDark: '#070913',
+                        nexusCard: 'rgba(15, 23, 42, 0.75)',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Glassmorphism & 3D Lighting Effects */
+        body {
+            background-color: #05070f;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px) rotateX(4deg) rotateY(-2deg);
+            border-color: rgba(0, 242, 254, 0.4);
+            box-shadow: 0 20px 40px -15px rgba(0, 242, 254, 0.25);
+        }
+
+        .neon-glow-red {
+            box-shadow: 0 0 25px rgba(255, 42, 95, 0.5);
+        }
+
+        .neon-glow-cyan {
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.4);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #ff2a5f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-gold {
+            background: linear-gradient(135deg, #ffe066 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070913;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff2a5f;
+        }
+
+        /* Animated Grid Overlay */
+        .cyber-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-nexusRed selection:text-white cyber-grid">
+
+    <!-- TOP ANNOUNCEMENT & UTILITY BAR -->
+    <div class="bg-gradient-to-r from-nexusDark via-slate-900 to-nexusDark border-b border-slate-800 text-xs py-2 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-6">
+                <span class="text-slate-400"><i class="fa-solid fa-bolt text-amber-400 mr-1.5"></i> Super Flash Sale is Live! Up to 70% OFF</span>
+                <span class="hidden md:inline text-slate-700">|</span>
+                <span class="hidden md:inline text-slate-400"><i class="fa-solid fa-truck-fast text-nexusCyan mr-1.5"></i> Free Express Shipping across Bangladesh</span>
+            </div>
+            <div class="flex items-center space-x-5 font-semibold text-slate-300">
+                <button onclick="openTrackerModal()" class="hover:text-nexusCyan transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-location-crosshairs text-nexusRed"></i> Track Order
+                </button>
+                <span>|</span>
+                <button onclick="toggleAccountModal()" class="hover:text-nexusCyan transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-gear"></i> My Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN NAVBAR & MEGA MENU -->
+    <header class="sticky top-0 z-40 glass-panel shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 py-3.5">
+            <div class="flex items-center justify-between gap-4">
+                
+                <!-- BRAND LOGO -->
+                <a href="#" class="flex items-center gap-2 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-nexusRed to-nexusCyan flex items-center justify-center font-display font-extrabold text-white text-xl shadow-lg group-hover:scale-105 transition">
+                        N
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-display font-extrabold text-2xl tracking-tight text-white group-hover:text-nexusCyan transition">NEXUS<span class="text-nexusRed">3D</span></span>
+                        <span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase -mt-1">NextGen Shopping</span>
+                    </div>
+                </a>
+
+                <!-- DYNAMIC SEARCH BAR WITH REAL-TIME FILTERING -->
+                <div class="flex-1 max-w-2xl relative hidden md:block">
+                    <div class="relative flex items-center">
+                        <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Search 100,000+ futuristic products, laptops, gadgets..." class="w-full bg-slate-900/80 border border-slate-700/80 rounded-2xl py-3 pl-11 pr-28 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-nexusCyan focus:ring-1 focus:ring-nexusCyan transition shadow-inner">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 text-slate-500"></i>
+                        <button onclick="filterProducts()" class="absolute right-1.5 px-5 py-2 bg-gradient-to-r from-nexusRed to-nexusPurple text-white font-bold text-xs rounded-xl shadow-lg hover:opacity-90 transition">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RIGHT ACTION BUTTONS: CART, WISHLIST, AI CHAT -->
+                <div class="flex items-center space-x-3 md:space-x-4">
+                    
+                    <!-- WISHLIST -->
+                    <button onclick="showToast('Wishlist feature coming soon!')" class="relative p-3 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition border border-slate-700/60">
+                        <i class="fa-regular fa-heart text-lg"></i>
+                        <span id="wishlistCount" class="absolute -top-1.5 -right-1.5 bg-amber-500 text-slate-900 font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
+                    </button>
+
+                    <!-- SHOPPING CART -->
+                    <button onclick="toggleCartDrawer()" class="relative p-3 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition border border-slate-700/60 flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-lg text-nexusCyan"></i>
+                        <span class="hidden lg:inline text-xs font-bold text-slate-200" id="cartTotalHeader">BDT 0</span>
+                        <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-nexusRed text-white font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
+                    </button>
+
+                    <!-- AI ASSISTANT TRIGGER -->
+                    <button onclick="toggleAIChat()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-nexusCyan to-blue-600 text-slate-950 font-extrabold text-xs shadow-lg hover:brightness-110 transition flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-sm"></i>
+                        <span class="hidden sm:inline">AI Shopping Concierge</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CATEGORIES MEGA NAVIGATION BAR -->
+            <nav class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold uppercase tracking-wider overflow-x-auto whitespace-nowrap scrollbar-none">
+                <div class="flex items-center space-x-6">
+                    <button onclick="selectCategory('All')" class="text-nexusCyan hover:text-white transition flex items-center gap-1.5 active-cat-btn" id="cat-All">
+                        <i class="fa-solid fa-border-all"></i> All Categories
+                    </button>
+                    <button onclick="selectCategory('Electronics')" class="text-slate-400 hover:text-nexusCyan transition flex items-center gap-1.5" id="cat-Electronics">
+                        <i class="fa-solid fa-laptop"></i> Flagship Tech
+                    </button>
+                    <button onclick="selectCategory('Smartphones')" class="text-slate-400 hover:text-nexusCyan transition flex items-center gap-1.5" id="cat-Smartphones">
+                        <i class="fa-solid fa-mobile-screen-button"></i> Smartphones
+                    </button>
+                    <button onclick="selectCategory('Fashion')" class="text-slate-400 hover:text-nexusCyan transition flex items-center gap-1.5" id="cat-Fashion">
+                        <i class="fa-solid fa-shirt"></i> Fashion
+                    </button>
+                    <button onclick="selectCategory('Audio')" class="text-slate-400 hover:text-nexusCyan transition flex items-center gap-1.5" id="cat-Audio">
+                        <i class="fa-solid fa-headphones"></i> Pro Audio
+                    </button>
+                    <button onclick="selectCategory('Appliances')" class="text-slate-400 hover:text-nexusCyan transition flex items-center gap-1.5" id="cat-Appliances">
+                        <i class="fa-solid fa-house-signal"></i> Smart Home
+                    </button>
+                </div>
+                <div class="text-amber-400 flex items-center gap-2 font-display text-[11px] ml-4">
+                    <i class="fa-solid fa-fire animate-pulse"></i> <span>Daraz-Killer Voucher: <strong>NEXUS2027</strong> (15% OFF)</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO SECTION WITH INTERACTIVE 3D PREVIEW CANVAS -->
+    <section class="relative py-8 md:py-16 px-4 md:px-8 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <!-- HERO TEXT BANNER -->
+            <div class="lg:col-span-6 space-y-6">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-bold text-nexusCyan">
+                    <span class="w-2 h-2 rounded-full bg-nexusCyan animate-ping"></span>
+                    <span>Next-Generation Shopping Experience</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-display font-extrabold tracking-tight leading-none text-white">
+                    Step Into The <span class="text-gradient">3D Future</span> Of E-Commerce.
+                </h1>
+                <p class="text-sm md:text-base text-slate-400 leading-relaxed max-w-xl">
+                    Experience products with 360-degree interactive 3D rotation, instant door-step delivery, and guaranteed authentic flagship electronics.
+                </p>
+
+                <!-- HERO STATS & BADGES -->
+                <div class="flex items-center gap-6 pt-2">
+                    <div>
+                        <div class="font-display font-black text-2xl text-white">100k+</div>
+                        <div class="text-xs text-slate-400">Products in 3D</div>
+                    </div>
+                    <div class="h-8 w-px bg-slate-800"></div>
+                    <div>
+                        <div class="font-display font-black text-2xl text-nexusRed">2.4 Hours</div>
+                        <div class="text-xs text-slate-400">Express Delivery</div>
+                    </div>
+                    <div class="h-8 w-px bg-slate-800"></div>
+                    <div>
+                        <div class="font-display font-black text-2xl text-amber-400">4.9 ★</div>
+                        <div class="text-xs text-slate-400">Customer Rating</div>
+                    </div>
+                </div>
+
+                <!-- CALL TO ACTION -->
+                <div class="flex items-center gap-4 pt-4">
+                    <a href="#flash-deals" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-nexusRed to-nexusPurple text-white font-extrabold text-sm shadow-xl hover:shadow-nexusRed/40 hover:scale-105 transition flex items-center gap-2">
+                        <span>Explore Flash Deals</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <button onclick="openModal('3dViewModal')" class="px-6 py-4 rounded-2xl glass-card text-slate-200 font-bold text-sm hover:text-white transition flex items-center gap-2">
+                        <i class="fa-solid fa-cubes text-nexusCyan"></i>
+                        <span>Launch 3D Lab</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE 3D CANVAS HERO SHOWCASE -->
+            <div class="lg:col-span-6 relative">
+                <div class="w-full h-[380px] md:h-[480px] rounded-3xl glass-panel relative overflow-hidden border border-slate-700/60 shadow-2xl flex items-center justify-center">
+                    
+                    <!-- THREE.JS 3D CANVAS CONTAINER -->
+                    <div id="hero3dCanvasContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                    
+                    <!-- OVERLAY 3D CONTROLS -->
+                    <div class="absolute bottom-4 left-4 right-4 glass-card p-3 rounded-2xl flex justify-between items-center text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="font-bold text-slate-200" id="hero3dLabel">Cyberpunk Futuristic VR Headset 3D</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400"><i class="fa-solid fa-hand-pointer mr-1"></i> Drag to Rotate 360°</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FLASH DEALS SECTION WITH LIVE COUNTDOWN TIMER -->
+    <section id="flash-deals" class="py-12 px-4 md:px-8 max-w-7xl mx-auto">
+        <div class="glass-panel p-6 md:p-8 rounded-3xl border border-nexusRed/30 relative overflow-hidden">
+            
+            <!-- HEADER & COUNTDOWN -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-2xl bg-nexusRed/20 text-nexusRed font-black text-xl">
+                        <i class="fa-solid fa-bolt-lightning animate-bounce"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-display font-extrabold text-2xl md:text-3xl text-white">FLASH DEALS</h2>
+                        <p class="text-xs text-slate-400">Limited quantities. Unbeatable price cuts updated live!</p>
+                    </div>
+                </div>
+
+                <!-- COUNTDOWN TIMER -->
+                <div class="flex items-center gap-2 font-display text-xs font-bold text-slate-300 bg-slate-900/90 px-5 py-3 rounded-2xl border border-slate-800">
+                    <span class="text-slate-400 mr-2 uppercase tracking-widest text-[10px]">Ends In:</span>
+                    <div class="bg-nexusRed text-white px-2.5 py-1 rounded-lg text-sm font-black" id="cd-hours">04</div>:
+                    <div class="bg-nexusRed text-white px-2.5 py-1 rounded-lg text-sm font-black" id="cd-mins">32</div>:
+                    <div class="bg-nexusRed text-white px-2.5 py-1 rounded-lg text-sm font-black" id="cd-secs">18</div>
+                </div>
+            </div>
+
+            <!-- PRODUCT GRID -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="productsGrid">
+                <!-- Dynamically populated via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SHOPPING CART DRAWER (SLIDE-OVER) -->
+    <div id="cartDrawer" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden transition-all duration-300">
+        <div class="fixed right-0 top-0 bottom-0 w-full max-w-md bg-slate-900 border-l border-slate-800 p-6 flex flex-col justify-between shadow-2xl overflow-y-auto">
+            
+            <div>
+                <!-- HEADER -->
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-nexusCyan text-xl"></i>
+                        <h3 class="font-display font-bold text-lg text-white">Shopping Cart</h3>
+                    </div>
+                    <button onclick="toggleCartDrawer()" class="text-slate-400 hover:text-white p-2">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- CART ITEMS LIST -->
+                <div id="cartItemsContainer" class="py-4 space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- CHECKOUT & TOTAL -->
+            <div class="pt-4 border-t border-slate-800 space-y-4">
+                <div class="space-y-1.5 text-xs text-slate-400">
+                    <div class="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span id="cartSubtotal" class="text-white font-bold">BDT 0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Express Delivery:</span>
+                        <span class="text-emerald-400 font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-white pt-2 border-t border-slate-800">
+                        <span>Total Payable:</span>
+                        <span id="cartGrandTotal" class="text-nexusCyan font-black text-lg">BDT 0</span>
+                    </div>
+                </div>
+
+                <button onclick="proceedToCheckout()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-nexusRed to-nexusPurple text-white font-extrabold text-sm shadow-xl hover:brightness-110 transition uppercase">
+                    Checkout Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D INTERACTIVE PRODUCT DETAIL MODAL -->
+    <div id="productModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-panel max-w-4xl w-full rounded-3xl p-6 md:p-8 border border-slate-700 shadow-2xl relative text-slate-200">
+            
+            <button onclick="closeModal('productModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white p-2 z-10">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                
+                <!-- 3D ROTATION CANVAS INTERACTIVE VIEW -->
+                <div class="md:col-span-6 bg-slate-900 rounded-2xl p-4 border border-slate-800 relative h-72 md:h-96 flex flex-col items-center justify-center">
+                    <div id="product3dCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                    <div class="absolute bottom-3 left-3 bg-slate-950/80 px-3 py-1 rounded-xl text-[10px] text-nexusCyan font-bold">
+                        <i class="fa-solid fa-arrows-rotate mr-1 animate-spin"></i> Interactive 360° Product View
+                    </div>
+                </div>
+
+                <!-- PRODUCT DETAILS & OPTIONS -->
+                <div class="md:col-span-6 space-y-4">
+                    <span id="mCategory" class="text-[10px] font-extrabold uppercase tracking-widest text-nexusCyan bg-nexusCyan/10 px-3 py-1 rounded-full">Category</span>
+                    <h2 id="mTitle" class="font-display font-extrabold text-2xl text-white">Product Title</h2>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="text-amber-400 text-xs" id="mRating">★ 4.9 (128 Reviews)</div>
+                        <span class="text-slate-700">|</span>
+                        <span class="text-xs text-emerald-400 font-bold"><i class="fa-solid fa-check-circle"></i> In Stock (Verified Seller)</span>
+                    </div>
+
+                    <div class="text-2xl font-black text-white font-display">
+                        <span id="mPrice" class="text-nexusRed">BDT 0</span>
+                        <span id="mOriginalPrice" class="text-xs text-slate-500 line-through ml-2">BDT 0</span>
+                    </div>
+
+                    <p id="mDesc" class="text-xs text-slate-400 leading-relaxed">
+                        High-precision next-gen tech product with futuristic craftsmanship and official warranty.
+                    </p>
+
+                    <!-- VARIANT SELECTOR -->
+                    <div class="space-y-2 pt-2">
+                        <label class="text-xs font-bold text-slate-300">Select Color & Storage:</label>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1.5 rounded-xl bg-nexusRed text-white text-xs font-bold border border-nexusRed">Cyber Red / 256GB</button>
+                            <button class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold border border-slate-700 hover:text-white">Neon Cyan / 512GB</button>
+                        </div>
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="flex gap-3 pt-4">
+                        <button id="mAddToCartBtn" class="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-nexusCyan to-blue-600 text-slate-950 font-extrabold text-xs shadow-lg hover:brightness-110 transition">
+                            <i class="fa-solid fa-cart-plus mr-1"></i> Add To Cart
+                        </button>
+                        <button onclick="closeModal('productModal'); toggleCartDrawer();" class="flex-1 py-3.5 rounded-2xl bg-nexusRed hover:bg-nexusRed/80 text-white font-extrabold text-xs shadow-lg transition">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORDER TRACKING MODAL -->
+    <div id="trackerModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 md:p-8 border border-slate-700 shadow-2xl relative">
+            <button onclick="closeModal('trackerModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
+            <h3 class="font-display font-bold text-xl text-white mb-2">Track Your Order Live</h3>
+            <p class="text-xs text-slate-400 mb-6">Enter your Order ID (e.g. NXS-9921) to check real-time courier status.</p>
+
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="orderIdInput" value="NXS-8821" placeholder="Enter Order ID..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-nexusCyan">
+                <button onclick="trackOrder()" class="px-5 py-2.5 rounded-xl bg-nexusCyan text-slate-950 font-extrabold text-xs">Track</button>
+            </div>
+
+            <!-- STATUS TIMELINE -->
+            <div id="trackerTimeline" class="space-y-4 text-xs border-l-2 border-nexusCyan pl-4 ml-2">
+                <div>
+                    <div class="font-bold text-white">Order Confirmed</div>
+                    <div class="text-[10px] text-slate-500">October 30, 2026 - 10:15 AM</div>
+                </div>
+                <div>
+                    <div class="font-bold text-nexusCyan">Dispatched with Express Rider</div>
+                    <div class="text-[10px] text-slate-500">In Transit - Expected Delivery Today 4:00 PM</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI SHOPPING CONCIERGE FLOATING CHATBOT WIDGET -->
+    <div class="fixed bottom-6 right-6 z-40 flex flex-col items-end">
+        
+        <!-- CHAT WINDOW -->
+        <div id="aiChatWindow" class="hidden w-80 sm:w-96 h-[460px] glass-panel rounded-3xl border border-slate-700 shadow-2xl flex flex-col overflow-hidden mb-4 transition-all">
+            <div class="p-4 bg-gradient-to-r from-nexusDark to-slate-900 border-b border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-nexusCyan text-slate-950 flex items-center justify-center font-black text-sm">AI</div>
+                    <div>
+                        <div class="font-bold text-xs text-white">Nexus Shopping Concierge</div>
+                        <div class="text-[9px] text-emerald-400">Online | Powered by Gemini</div>
+                    </div>
+                </div>
+                <button onclick="toggleAIChat()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- CHAT MESSAGES CONTAINER -->
+            <div id="aiChatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+                <div class="bg-slate-800/90 text-slate-200 p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-slate-700">
+                    Hello! I am your AI Shopping Assistant. Looking for tech recommendations or discounts today?
+                </div>
+            </div>
+
+            <!-- CHAT INPUT -->
+            <div class="p-3 bg-slate-900/90 border-t border-slate-800 flex gap-2">
+                <input type="text" id="aiInput" onkeypress="handleAIEnter(event)" placeholder="Ask about laptops, vouchers, recommendations..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-nexusCyan">
+                <button onclick="sendAIMessage()" class="px-4 py-2 bg-nexusCyan text-slate-950 rounded-xl font-bold text-xs"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-20 border-t border-slate-800/80 bg-nexusDark pt-12 pb-8 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-xs text-slate-400">
+            <div>
+                <span class="font-display font-extrabold text-xl text-white">NEXUS<span class="text-nexusRed">3D</span></span>
+                <p class="mt-3 leading-relaxed">Bangladesh's first futuristic E-Commerce shopping platform. Quality assured, instant express shipping, and 100% genuine products.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-white uppercase tracking-wider mb-3">Customer Service</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-nexusCyan">Help Center</a></li>
+                    <li><a href="#" class="hover:text-nexusCyan">How to Buy</a></li>
+                    <li><a href="#" class="hover:text-nexusCyan">Returns & Refunds</a></li>
+                    <li><a href="#" class="hover:text-nexusCyan">Contact Us</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white uppercase tracking-wider mb-3">Payment Gateways</h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded font-bold text-pink-500">bKash</span>
+                    <span class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded font-bold text-orange-500">Nagad</span>
+                    <span class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded font-bold text-blue-400">VISA</span>
+                    <span class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded font-bold text-red-500">Mastercard</span>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-white uppercase tracking-wider mb-3">Download App</h4>
+                <p class="mb-3">Get the Nexus ZEO Shopping App for iOS & Android.</p>
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white text-[10px] font-bold">App Store</button>
+                    <button class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white text-[10px] font-bold">Google Play</button>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-8 pt-6 border-t border-slate-800/60 text-center text-[11px] text-slate-500">
+            &copy; 2027 NEXUS MART ZEO PLC. All Rights Reserved. Built with SHION MIAH.
+        </div>
+    </footer>
+
+    <!-- MAIN APPLICATION SCRIPT & THREE.JS LOGIC -->
+    <script>
+        // =========================================================================
+        // 1. PRODUCT DATABASE (HIGH CONVERTING PRODUCTS)
+        // =========================================================================
+        const products = [
+            {
+                id: 1,
+                title: "Cyberpunk VR Headset Pro 3D",
+                category: "Electronics",
+                price: 45000,
+                originalPrice: 58000,
+                rating: 4.9,
+                reviews: 210,
+                stock: 12,
+                image3dColor: 0x00f2fe,
+                desc: "4K Dual OLED Micro-displays, 120Hz refresh rate, spatial audio & haptic controller integration."
+            },
+            {
+                id: 2,
+                title: "Flagship Neo Smartphone X",
+                category: "Smartphones",
+                price: 89000,
+                originalPrice: 105000,
+                rating: 5.0,
+                reviews: 430,
+                stock: 8,
+                image3dColor: 0xff2a5f,
+                desc: "Snapdragon 8 Gen 5 processor, 200MP periscope zoom camera, titanium futuristic chassis."
+            },
+            {
+                id: 3,
+                title: "Quantum ANC Wireless Headphones",
+                category: "Audio",
+                price: 18500,
+                originalPrice: 24000,
+                rating: 4.8,
+                reviews: 154,
+                stock: 25,
+                image3dColor: 0x7928ca,
+                desc: "45dB Active Noise Cancellation, lossless audio codec support, 60 hours playback time."
+            },
+            {
+                id: 4,
+                title: "Cyber Jacket Neon Edition",
+                category: "Fashion",
+                price: 6500,
+                originalPrice: 9500,
+                rating: 4.7,
+                reviews: 89,
+                stock: 15,
+                image3dColor: 0xf59e0b,
+                desc: "Waterproof LED embedded cyber jacket with climate regulation inner lining."
+            }
+        ];
+
+        let cart = [];
+        let currentFilter = 'All';
+
+        // =========================================================================
+        // 2. RENDER PRODUCTS TO GRID
+        // =========================================================================
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            const filtered = products.filter(p => {
+                return currentFilter === 'All' || p.category === currentFilter;
+            });
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-3xl p-5 flex flex-col justify-between relative group";
+                card.innerHTML = `
+                    <div class="absolute top-4 left-4 z-10 bg-nexusRed text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        SAVE BDT ${(p.originalPrice - p.price).toLocaleString()}
+                    </div>
+                    
+                    <div class="w-full h-48 rounded-2xl bg-slate-900/80 my-2 flex items-center justify-center relative cursor-pointer overflow-hidden" onclick="openProductModal(${p.id})">
+                        <i class="fa-solid fa-cube text-5xl text-nexusCyan/40 group-hover:text-nexusCyan group-hover:scale-125 transition duration-500"></i>
+                        <span class="absolute bottom-2 text-[10px] text-slate-400 font-bold bg-slate-950/80 px-2 py-0.5 rounded-lg">Click for 3D View</span>
+                    </div>
+
+                    <div class="space-y-2 mt-2">
+                        <span class="text-[10px] font-bold text-nexusCyan uppercase tracking-widest">${p.category}</span>
+                        <h3 class="font-display font-bold text-sm text-white line-clamp-1 group-hover:text-nexusCyan transition">${p.title}</h3>
+                        
+                        <div class="flex items-center gap-1.5 text-xs text-amber-400">
+                            <span>★ ${p.rating}</span>
+                            <span class="text-slate-500">(${p.reviews})</span>
+                        </div>
+
+                        <div class="flex items-baseline gap-2 pt-1">
+                            <span class="font-display font-extrabold text-lg text-white">BDT ${p.price.toLocaleString()}</span>
+                            <span class="text-xs text-slate-500 line-through">BDT ${p.originalPrice.toLocaleString()}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-4">
+                        <button onclick="addToCart(${p.id})" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-nexusRed text-white font-bold text-xs transition border border-slate-700 hover:border-nexusRed">
+                            <i class="fa-solid fa-cart-plus mr-1"></i> Add
+                        </button>
+                        <button onclick="openProductModal(${p.id})" class="px-4 py-3 rounded-xl bg-nexusCyan/10 hover:bg-nexusCyan text-nexusCyan hover:text-slate-950 font-bold text-xs transition">
+                            <i class="fa-solid fa-cubes"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // =========================================================================
+        // 3. CART SYSTEM
+        // =========================================================================
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existing = cart.find(item => item.id === productId);
+
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+
+            updateCartUI();
+            showToast(`${product.title} added to cart!`);
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cartItemsContainer');
+            const cartBadge = document.getElementById('cartBadge');
+            const cartTotalHeader = document.getElementById('cartTotalHeader');
+            const subtotalEl = document.getElementById('cartSubtotal');
+            const grandTotalEl = document.getElementById('cartGrandTotal');
+
+            container.innerHTML = '';
+            let total = 0;
+            let totalQty = 0;
+
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                totalQty += item.qty;
+
+                const div = document.createElement('div');
+                div.className = "p-3 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between gap-3";
+                div.innerHTML = `
+                    <div class="flex-1">
+                        <h4 class="font-bold text-xs text-white">${item.title}</h4>
+                        <div class="text-[11px] text-nexusCyan font-bold mt-0.5">BDT ${item.price.toLocaleString()} x ${item.qty}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 rounded bg-slate-700 text-white font-bold text-xs">-</button>
+                        <span class="text-xs font-bold">${item.qty}</span>
+                        <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 rounded bg-slate-700 text-white font-bold text-xs">+</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            cartBadge.innerText = totalQty;
+            cartTotalHeader.innerText = `BDT ${total.toLocaleString()}`;
+            subtotalEl.innerText = `BDT ${total.toLocaleString()}`;
+            grandTotalEl.innerText = `BDT ${total.toLocaleString()}`;
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== id);
+            }
+            updateCartUI();
+        }
+
+        function toggleCartDrawer() {
+            document.getElementById('cartDrawer').classList.toggle('hidden');
+        }
+
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            alert('Order Placed Successfully! Express rider will deliver your parcel within  3 Day.');
+            cart = [];
+            updateCartUI();
+            toggleCartDrawer();
+        }
+
+        // =========================================================================
+        // 4. CATEGORY SELECTOR & FILTERING
+        // =========================================================================
+        function selectCategory(cat) {
+            currentFilter = cat;
+            renderProducts();
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const grid = document.getElementById('productsGrid');
+            const cards = grid.children;
+
+            Array.from(cards).forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                if (title.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // =========================================================================
+        // 5. THREE.JS 3D HERO ENGINE & PRODUCT ROTATION
+        // =========================================================================
+        let heroScene, heroCamera, heroRenderer, heroCube;
+
+        function initHero3D() {
+            const container = document.getElementById('hero3dCanvasContainer');
+            if (!container) return;
+
+            heroScene = new THREE.Scene();
+            heroCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            
+            heroRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            heroRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(heroRenderer.domElement);
+
+            // Create Futuristic Hologram Cube Asset
+            const geometry = new THREE.IcosahedronGeometry(2, 0);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0x00f2fe,
+                wireframe: true,
+                emissive: 0x00aaff,
+                shininess: 100
+            });
+            heroCube = new THREE.Mesh(geometry, material);
+            heroScene.add(heroCube);
+
+            // Lighting
+            const light = new THREE.PointLight(0xff2a5f, 2, 100);
+            light.position.set(10, 10, 10);
+            heroScene.add(light);
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+            heroScene.add(ambient);
+
+            heroCamera.position.z = 6;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                heroCube.rotation.x += 0.005;
+                heroCube.rotation.y += 0.01;
+                heroRenderer.render(heroScene, heroCamera);
+            }
+            animate();
+        }
+
+        // =========================================================================
+        // 6. MODAL SYSTEM & AI ASSISTANT CHATBOT
+        // =========================================================================
+        function openProductModal(id) {
+            const p = products.find(prod => prod.id === id);
+            if (!p) return;
+
+            document.getElementById('mTitle').innerText = p.title;
+            document.getElementById('mCategory').innerText = p.category;
+            document.getElementById('mPrice').innerText = `BDT ${p.price.toLocaleString()}`;
+            document.getElementById('mOriginalPrice').innerText = `BDT ${p.originalPrice.toLocaleString()}`;
+            document.getElementById('mDesc').innerText = p.desc;
+            document.getElementById('mRating').innerText = `★ ${p.rating} (${p.reviews} Verified Reviews)`;
+            
+            document.getElementById('mAddToCartBtn').onclick = function() {
+                addToCart(p.id);
+                closeModal('productModal');
+            };
+
+            openModal('productModal');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function toggleAIChat() {
+            document.getElementById('aiChatWindow').classList.toggle('hidden');
+        }
+
+        function handleAIEnter(e) {
+            if (e.key === 'Enter') sendAIMessage();
+        }
+
+        async function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const container = document.getElementById('aiChatMessages');
+            
+            // Render User Bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = "bg-nexusCyan text-slate-950 p-3 rounded-2xl rounded-tr-none max-w-[85%] ml-auto font-semibold";
+            userBubble.innerText = text;
+            container.appendChild(userBubble);
+
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            // AI Loading Response
+            const aiBubble = document.createElement('div');
+            aiBubble.className = "bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none max-w-[85%] border border-slate-700";
+            aiBubble.innerText = "Consulting Nexus AI Catalog...";
+            container.appendChild(aiBubble);
+
+            setTimeout(() => {
+                let reply = "I recommend checking out our Flagship Neo Smartphone X or Quantum ANC Headphones with 15% voucher code NEXUS2026!";
+                if (text.toLowerCase().includes('laptop') || text.toLowerCase().includes('phone')) {
+                    reply = "Our Flagship Neo Smartphone X has 200MP camera and titanium chassis. Would you like me to add it to your cart?";
+                }
+                aiBubble.innerText = reply;
+                container.scrollTop = container.scrollHeight;
+            }, 800);
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 left-5 bg-nexusCyan text-slate-950 px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl z-50 flex items-center gap-2";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i> <span>${msg}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function trackOrder() {
+            alert('Order NXS-8821: Rider is 1.2 KM away. Estimated delivery in 18 minutes.');
+        }
+
+        // Countdown Timer Loop
+        setInterval(() => {
+            let secs = parseInt(document.getElementById('cd-secs').innerText);
+            if (secs > 0) {
+                document.getElementById('cd-secs').innerText = String(secs - 1).padStart(2, '0');
+            } else {
+                document.getElementById('cd-secs').innerText = '59';
+            }
+        }, 1000);
+
+        // INITIALIZE ON LOAD
+        window.onload = function() {
+            renderProducts();
+            initHero3D();
+        };
+    </script>
+</body>
+</html>
